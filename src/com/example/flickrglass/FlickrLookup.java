@@ -23,8 +23,6 @@ import com.googlecode.flickrjandroid.REST;
 import com.googlecode.flickrjandroid.oauth.OAuthUtils;
 import com.googlecode.flickrjandroid.photos.PhotoList;
 import com.googlecode.flickrjandroid.photos.SearchParameters;
-import com.googlecode.flickrjandroid.places.Place;
-import com.googlecode.flickrjandroid.places.PlacesList;
 import com.googlecode.flickrjandroid.util.IOUtilities;
 import com.googlecode.flickrjandroid.util.UrlUtilities;
 
@@ -37,23 +35,14 @@ public class FlickrLookup extends AsyncTask<Location, Void, PhotoList> {
 				Flickr f = new Flickr("4a67c256e5b0e4db6aa274513108928c",
 						new MyREST());
 
-				PlacesList places = f.getPlacesInterface().findByLatLon(
-						location.getLatitude(), location.getLongitude(), 16);
-
-				for (Place place : places) {
-					Log.i("Place", "name=" + place.getName());
-					Log.i("Place", "place_id=" + place.getPlaceId());
-					Log.i("Place", "place_url=" + place.getPlaceUrl());
-					SearchParameters pars = new SearchParameters();
-//					pars.setPlaceId(place.getPlaceId());
-					pars.setLatitude(Double.toString(location.getLatitude()));
-					pars.setLongitude(Double.toString(location.getLongitude()));
-					HashSet<String> extras = new HashSet<String>();
-					extras.add("owner_name");
-					extras.add("description");
-					pars.setExtras(extras);
-					list.addAll(f.getPhotosInterface().search(pars, 10, 0));
-				}
+				SearchParameters pars = new SearchParameters();
+				pars.setLatitude(Double.toString(location.getLatitude()));
+				pars.setLongitude(Double.toString(location.getLongitude()));
+				HashSet<String> extras = new HashSet<String>();
+				extras.add("owner_name");
+				extras.add("description");
+				pars.setExtras(extras);
+				list.addAll(f.getPhotosInterface().search(pars, 10, 0));
 			}
 		} catch (Exception e) {
 			Log.e("FlickrLookup", e.getClass() + ":" + e.getMessage(), e);
@@ -61,8 +50,8 @@ public class FlickrLookup extends AsyncTask<Location, Void, PhotoList> {
 		return list;
 	}
 
-	public class MyREST extends REST {
-		public MyREST() throws ParserConfigurationException {
+	private class MyREST extends REST {
+		private MyREST() throws ParserConfigurationException {
 			super(Flickr.DEFAULT_HOST);
 		}
 
