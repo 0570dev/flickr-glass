@@ -1,6 +1,8 @@
 package com.example.flickrglass;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,15 +14,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.provider.MediaStore.Files;
 import android.util.Log;
 
 import com.googlecode.flickrjandroid.Flickr;
 import com.googlecode.flickrjandroid.Parameter;
 import com.googlecode.flickrjandroid.REST;
 import com.googlecode.flickrjandroid.oauth.OAuthUtils;
+import com.googlecode.flickrjandroid.photos.Photo;
 import com.googlecode.flickrjandroid.photos.PhotoList;
 import com.googlecode.flickrjandroid.photos.SearchParameters;
 import com.googlecode.flickrjandroid.util.IOUtilities;
@@ -43,6 +50,30 @@ public class FlickrLookup extends AsyncTask<Location, Void, PhotoList> {
 				extras.add("description");
 				pars.setExtras(extras);
 				list.addAll(f.getPhotosInterface().search(pars, 10, 0));
+			}
+			for (Photo photo : list) {
+				HttpURLConnection connection = (HttpURLConnection) new URL(
+						photo.getMedium640Url()).openConnection();
+				connection.connect();
+				InputStream input = connection.getInputStream();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+				byte[] buffer = new byte[32768];
+				int len = input.read(buffer);
+				while (len != -1) {
+					baos.write(buffer, 0, len);
+					len = input.read(buffer);
+				}
+				photo.setBytes(baos.toByteArray());
+
+				Log.i("Photo",
+						"id: " + photo.getId() + ", url:"
+								+ photo.getMedium640Url() + ", title:"
+								+ photo.getTitle() + ", description:"
+								+ photo.getDescription() + ", owner:"
+								+ photo.getOwner().getUsername() + ", size: "
+								+ photo.getBytes().length);
+				connection.disconnect();
 			}
 		} catch (Exception e) {
 			Log.e("FlickrLookup", e.getClass() + ":" + e.getMessage(), e);

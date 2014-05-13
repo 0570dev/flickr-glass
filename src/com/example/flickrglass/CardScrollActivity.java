@@ -14,43 +14,25 @@ import com.google.android.glass.widget.CardScrollView;
 
 public class CardScrollActivity extends Activity {
 
-    private List<Card> mCards;
+    private List<Card> mCards = new ArrayList<Card>();
     private CardScrollView mCardScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        createCards();
-
-        mCardScrollView = new CardScrollView(this);
-        ExampleCardScrollAdapter adapter = new ExampleCardScrollAdapter();
-        mCardScrollView.setAdapter(adapter);
-        mCardScrollView.activate();
-        setContentView(mCardScrollView);
     }
 
-    private void createCards() {
-        mCards = new ArrayList<Card>();
-
-        Card card;
-
-        card = new Card(this);
-        card.setText("This card has a footer.");
-        card.setFootnote("I'm the footer!");
-        mCards.add(card);
-
-        card = new Card(this);
-        card.setText("This card has a puppy background image.");
-        card.setFootnote("How can you resist?");
-        card.setImageLayout(Card.ImageLayout.FULL);
-        mCards.add(card);
-
-        card = new Card(this);
-        card.setText("This card has a mosaic of puppies.");
-        card.setFootnote("Aren't they precious?");
-        card.setImageLayout(Card.ImageLayout.LEFT);
-        mCards.add(card);
+    protected void addCard(Card c) {
+    	mCards.add(c);
+    }
+    
+    protected void updateView(){
+    	mCardScrollView = new CardScrollView(this);
+    	ExampleCardScrollAdapter adapter = new ExampleCardScrollAdapter();
+    	mCardScrollView.setAdapter(adapter);
+    	mCardScrollView.activate();
+    	setContentView(mCardScrollView);
     }
 
     private class ExampleCardScrollAdapter extends CardScrollAdapter {
